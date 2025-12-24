@@ -2,46 +2,47 @@ package main
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // Пишите тесты в этом файле
 
 func TestGenerateRandomElementsLength(t *testing.T) {
-	testSize := 5
-	result := generateRandomElements(testSize)
-	if len(result) != testSize {
-		t.Errorf("returned wrong length: got %d, want %d", len(result), testSize)
+	tests := []struct {
+		input    int
+		expected int
+	}{
+		{input: 1, expected: 1},
+		{input: 50, expected: 50},
+		{input: 1000, expected: 1000},
+	}
+	for _, test := range tests {
+		result := generateRandomElements(test.input)
+		assert.Len(t, result, test.expected,
+			"generateRandomElements(%d) should return slice with length %d",
+			test.input, test.expected)
 	}
 }
 
 func TestGenerateRandomElementsEmpty(t *testing.T) {
-	result := generateRandomElements(-1)
-	if len(result) != 0 {
-		t.Errorf("If the size is negative, an empty slice should be returned")
+	tests := []struct {
+		name string
+		size int
+	}{
+		{"negative size", -1},
+		{"zero size", 0},
 	}
-	result = generateRandomElements(0)
-	if len(result) != 0 {
-		t.Errorf("If the size is zero, an empty slice should be returned")
-	}
-}
-
-func TestGenerateRandomElementsRange(t *testing.T) {
-	testSize := 1000
-	result := generateRandomElements(testSize)
-
-	for i, v := range result {
-		if v < 0 || v >= SIZE {
-			t.Errorf("element at index %d: value %d is out of range [0, %d)",
-				i, v, SIZE)
-		}
+	for _, test := range tests {
+		result := generateRandomElements(test.size)
+		assert.NotNil(t, result, "The result should not be nil")
+		assert.Empty(t, result, "\"generateRandomElements(%d) should return empty slice\", tc.size")
 	}
 }
 
 func TestMaximumEmptySlice(t *testing.T) {
 	result := maximum([]int{})
-	if result != 0 {
-		t.Errorf("Maximum slice is empty, an empty slice should be returned")
-	}
+	assert.Equal(t, 0, result, "The maximum slice should be 0")
 }
 
 func TestMaximumSingleElement(t *testing.T) {
@@ -55,9 +56,7 @@ func TestMaximumSingleElement(t *testing.T) {
 	}
 	for _, v := range tests {
 		result := maximum(v.input)
-		if result != v.expected {
-			t.Errorf("Maximum slice is %d, want %d", result, v.expected)
-		}
+		assert.Equal(t, v.expected, result, "The maximum slice should be equal")
 	}
 }
 
@@ -71,9 +70,7 @@ func TestMaximumSomeElements(t *testing.T) {
 	}
 	for _, v := range tests {
 		result := maximum(v.input)
-		if result != v.expected {
-			t.Errorf("Maximum slice is %d, want %d", result, v.expected)
-		}
+		assert.Equal(t, v.expected, result, "The maximum slice should be equal")
 	}
 }
 
@@ -87,9 +84,7 @@ func TestMaximumDuplicates(t *testing.T) {
 	}
 	for _, v := range tests {
 		result := maximum(v.input)
-		if result != v.expected {
-			t.Errorf("Maximum slice is %d, want %d", result, v.expected)
-		}
+		assert.Equal(t, v.expected, result, "The maximum slice should be equal")
 	}
 }
 
@@ -103,8 +98,6 @@ func TestMaximumNegative(t *testing.T) {
 	}
 	for _, v := range tests {
 		result := maximum(v.input)
-		if result != v.expected {
-			t.Errorf("Maximum slice is %d, want %d", result, v.expected)
-		}
+		assert.Equal(t, v.expected, result, "The maximum slice should be equal")
 	}
 }

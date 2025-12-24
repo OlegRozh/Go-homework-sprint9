@@ -20,7 +20,7 @@ func generateRandomElements(size int) []int {
 	}
 	s := make([]int, size)
 	for i := 0; i < size; i++ {
-		s[i] = rand.Intn(SIZE)
+		s[i] = rand.Int()
 	}
 	return s
 }
@@ -47,45 +47,22 @@ func maxChunks(data []int) int {
 		return 0
 	}
 
-	ch := make(chan int, CHUNKS)
 	var wg sync.WaitGroup
+	results := make([]int, CHUNKS)
 	chunkSize := len(data) / CHUNKS
 
-	for i := 1; i < CHUNKS; i++ {
+	for i := 0; i < CHUNKS; i++ {
 		wg.Add(1)
 		start := i * chunkSize
 		end := start + chunkSize
 
-		if i == CHUNKS-1 {
-			end = len(data)
-		}
-		if start > len(data) {
-			wg.Done()
-			continue
-		}
-		go func(start int, end int) {
+		go func(index int, chunk []int) {
 			defer wg.Done()
-			chunkMax := maximum(data[start:end])
-			ch <- chunkMax
-		}(start, end)
+			results[index] = maximum(chunk)
+		}(i, data[start:end])
 	}
-	go func() {
-		wg.Wait()
-		close(ch)
-	}()
-
-	maxVal, ok := <-ch
-	if !ok {
-		return 0
-	}
-
-	for val := range ch {
-		if val > maxVal {
-			maxVal = val
-		}
-	}
-
-	return maxVal
+	wg.Wait()
+	return maximum(results)
 }
 
 func main() {
@@ -101,9 +78,9 @@ func main() {
 
 	fmt.Printf("Ищем максимальное значение в %d потоков", CHUNKS)
 	// ваш код здесь
-	paralellStart := time.Now()
+	parallelStart := time.Now()
 	max = maxChunks(data)
-	elapsed = time.Since(paralellStart).Milliseconds()
+	elapsed = time.Since(parallelStart).Milliseconds()
 
 	fmt.Printf("Максимальное значение элемента: %d\nВремя поиска: %d ms\n", max, elapsed)
 }
